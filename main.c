@@ -188,6 +188,7 @@ int main(void){
                 return 0;
             }
             
+            
             // --------------------------------Mettre à jour les coordonnées du serpent-----------------------------
 
             printf("avant maj coo serpent\n");
