@@ -51,7 +51,7 @@ typedef enum {
  */
 void connectToServer(char* serverName, int port, char* name);
 
-
+ 
 
 /* ----------------------------------
  * Close the connection to the server
