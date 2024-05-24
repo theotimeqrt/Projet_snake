@@ -150,142 +150,143 @@ int main(void){
 
     // ################################ Cas 1, je commence #########################################
 
-    if(tour == 0){
-        while(1){
+    while(1){
 
-            printf("entre dans boucle tour = 0\n");
-            printArena();
-
-            // ----------------------------Notre coup---------------------------------------------
+        if(tour == 0){
             
-            int coup = 0;
+
+                printf("entre dans boucle tour = 0\n");
+                printArena();
+
+                // ----------------------------Notre coup---------------------------------------------
+                
+                int coup = 0;
+                
+                printf("Entrez la valeur de coup : 0 pour Nord, 1 pour Est, 2 pour Sud, 3 pour Ouest\n");
+                scanf("%d", &coup);
+                printf("Vous avez saisi la valeur %d pour coup\n", coup);
+
+
+                resultat_mon_coup = sendMove(coup_t_move); // envoi mon coup
+                printf("mouv envoyé\n");
+
+                coup_t_move = (t_move)coup ; // cast
+                printf("avant detection notre coup\n");
+                int sortie = detecter_mon_coup(resultat_mon_coup);
+                printf("apres\n");
+                if (sortie == 1){
+                    return 0;
+                }
+
+
+                // ---------------------------- Détecter coup adv --------------------------------
+
+                int sortie_adv = 0; 
+
+                printf("avant detection coup adv\n");
+                sortie_adv = detecter_coup_adv();
+                printf("apres\n");
+                if (sortie_adv == 1){ 
+                    return 0;
+                }
+                
+                // --------------------------------Mettre à jour les coordonnées du serpent-----------------------------
+
+                printf("avant maj coo serpent\n");
+
+                if(coup == 0 ){
+                    snake.co_y ++ ;
+                }
+                if (coup == 1){
+                    snake.co_x ++ ;
+                }
+                if (coup == 2){
+                    snake.co_y -- ;
+                }
+                if (coup == 3){
+                    snake.co_x -- ;
+                }
+
+                printf("coo x du snake : %d\n", snake.co_x);
+                printf("coo y du snake : %d\n", snake.co_y);
+
+                // ---------------------------- Mettre à jour l'arène --------------------------------------------------
+
+                arène.snake = snake;
+
             
-            printf("Entrez la valeur de coup : 0 pour Nord, 1 pour Est, 2 pour Sud, 3 pour Ouest\n");
-            scanf("%d", &coup);
-            printf("Vous avez saisi la valeur %d pour coup\n", coup);
-
-
-            resultat_mon_coup = sendMove(coup_t_move); // envoi mon coup
-            printf("mouv envoyé\n");
-
-            coup_t_move = (t_move)coup ; // cast
-            printf("avant detection notre coup\n");
-            int sortie = detecter_mon_coup(resultat_mon_coup);
-            printf("apres\n");
-            if (sortie == 1){
-                return 0;
-            }
-
-
-            // ---------------------------- Détecter coup adv --------------------------------
-
-            int sortie_adv = 0; 
-
-            printf("avant detection coup adv\n");
-            sortie_adv = detecter_coup_adv();
-            printf("apres\n");
-            if (sortie_adv == 1){
-                return 0;
-            }
-            
-            
-            // --------------------------------Mettre à jour les coordonnées du serpent-----------------------------
-
-            printf("avant maj coo serpent\n");
-
-            if(coup == 0 ){
-                snake.co_y ++ ;
-            }
-            if (coup == 1){
-                snake.co_x ++ ;
-            }
-            if (coup == 2){
-                snake.co_y -- ;
-            }
-            if (coup == 3){
-                snake.co_x -- ;
-            }
-
-            printf("coo x du snake : %d\n", snake.co_x);
-            printf("coo y du snake : %d\n", snake.co_y);
-
-            // ---------------------------- Mettre à jour l'arène --------------------------------------------------
-
-            
-            arène.snake = snake;
-
         }
-    }
 
-    // ################################ Cas 2, je suis a droite (de l'arène) #########################################
-
-
-    else {
-        while(1){
-
-            printf("entre dans boucle tour = 1\n");
-            printArena();
-
-            // ---------------------------- Détecter coup adv --------------------------------
-
-            int sortie_adv = 0; 
-
-            printf("avant detection coup adv\n");
-            sortie_adv = detecter_coup_adv();
-            printf("apres\n");
-            if (sortie_adv == 1){
-                return 0;
-            }
-
-            // ----------------------------Notre coup---------------------------------------------
-
-            int coup = 0;
-            
-            printf("Entrez la valeur de coup : 0 pour Nord, 1 pour Est, 2 pour Sud, 3 pour Ouest\n");
-            scanf("%d", &coup);
-            printf("Vous avez saisi la valeur %d pour coup\n", coup);
+        // ################################ Cas 2, je suis a droite (de l'arène) #########################################
 
 
-            resultat_mon_coup = sendMove(coup_t_move); // envoi mon coup
-            printf("mouv envoyé\n");
-
-            coup_t_move = (t_move)coup ; // cast
-            printf("avant detection notre coup\n");
-            int sortie = detecter_mon_coup(resultat_mon_coup);
-            printf("apres\n");
-            if (sortie == 1){
-                return 0;
-            }
-
-            // --------------------------------Mettre à jour les coordonnées du serpent-----------------------------
-
-            printf("avant maj coo serpent\n");
-
-            if(coup == 0 ){
-                snake.co_y ++ ;
-            }
-            if (coup == 1){
-                snake.co_x ++ ;
-            }
-            if (coup == 2){
-                snake.co_y -- ;
-            }
-            if (coup == 3){
-                snake.co_x -- ;
-            }
-
-            printf("coo x du snake : %d\n", snake.co_x);
-            printf("coo y du snake : %d\n", snake.co_y);
-
-            // ---------------------------- Mettre à jour l'arène --------------------------------------------------
-
-            
-            arène.snake = snake;
+        else {
             
 
+                printf("entre dans boucle tour = 1\n");
+                printArena();
 
+                // ---------------------------- Détecter coup adv --------------------------------
+
+                int sortie_adv = 0; 
+
+                printf("avant detection coup adv\n");
+                sortie_adv = detecter_coup_adv();
+                printf("apres\n");
+                if (sortie_adv == 1){
+                    return 0;
+                }
+
+                // ----------------------------Notre coup---------------------------------------------
+
+                int coup = 0;
+                
+                printf("Entrez la valeur de coup : 0 pour Nord, 1 pour Est, 2 pour Sud, 3 pour Ouest\n");
+                scanf("%d", &coup);
+                printf("Vous avez saisi la valeur %d pour coup\n", coup);
+
+
+                resultat_mon_coup = sendMove(coup_t_move); // envoi mon coup
+                printf("mouv envoyé\n");
+
+                coup_t_move = (t_move)coup ; // cast
+                printf("avant detection notre coup\n");
+                int sortie = detecter_mon_coup(resultat_mon_coup);
+                printf("apres\n");
+                if (sortie == 1){
+                    return 0;
+                }
+
+                // --------------------------------Mettre à jour les coordonnées du serpent-----------------------------
+
+                printf("avant maj coo serpent\n");
+
+                if(coup == 0 ){
+                    snake.co_y ++ ;
+                }
+                if (coup == 1){
+                    snake.co_x ++ ;
+                }
+                if (coup == 2){
+                    snake.co_y -- ;
+                }
+                if (coup == 3){
+                    snake.co_x -- ;
+                }
+
+                printf("coo x du snake : %d\n", snake.co_x);
+                printf("coo y du snake : %d\n", snake.co_y);
+
+                // ---------------------------- Mettre à jour l'arène --------------------------------------------------
+
+                
+                arène.snake = snake;
+                
+
+
+            
         }
-    }
+    } //fin boucle while
 
 }
 
