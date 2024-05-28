@@ -43,51 +43,6 @@ Les 6 derniers caracteres sont la seed de l'arène
 
 
 
-// #########################################################################
-// ############################################### FONCTIONS ########################################################################
-// #########################################################################
-
-
-int detecter_coup_adv(t_move* coup_t_adv) {
-    t_return_code coup = getMove(coup_t_adv); // attend move adv
-
-    int sortie = 0;
-    if (coup == WINNING_MOVE) {
-        printf("L'adv gagne !\n");
-        sendComment("Ah");
-        sortie = 1;
-    } else if (coup == LOSING_MOVE) {
-        printf("L'adv perd !\n");
-        sendComment("Pas de ralentir");
-        sortie = 1;
-    } else {
-        sortie = 0;
-    }
-
-    
-    return sortie;
-}
-
-int detecter_mon_coup(t_return_code coup){
-
-    if(coup == WINNING_MOVE){
-        printf("Tu gagnes !\n");
-        sendComment("Yeah !");
-        closeConnection() ;
-        return 1;
-    }
-    
-    else if(coup == LOSING_MOVE){
-        printf( "Tu perd !\n" );
-        sendComment("classique death");
-        closeConnection() ;
-        return 1;
-    }
-    else{
-        return 0;
-    }
-}
-
 
 
 // #########################################################################
@@ -97,10 +52,9 @@ int detecter_mon_coup(t_return_code coup){
 
 int main(void){
     printf("debut main\n") ;
-    
 
     //void connectToServer(char* serverName, int port, char* name) //nom serveur : localhost, port : 1234
-    connectToServer("localhost", 1234, "le_T3") ;
+    connectToServer("localhost", 1234, "le_T4") ;
     printf("connecté serveur\n") ;
     // -----------------------Récuperation des informations------------------------------------
 
@@ -108,7 +62,7 @@ int main(void){
     int sizeX ;
     int sizeY ;
     int nbWalls ;
-    waitForSnakeGame("TRAINING RANDOM_PLAYER difficulty=3 timeout=100 ", &gameName, &sizeX, &sizeY, &nbWalls); //attend retour partie
+    waitForSnakeGame("TRAINING RANDOM_PLAYER difficulty=2 timeout=100 ", &gameName, &sizeX, &sizeY, &nbWalls); //attend retour partie
     //void waitForSnakeGame(char* gameType, char* gameName, int* sizeX, int* sizeY, int* nbWalls)
 
     int walls[2000];
@@ -130,7 +84,7 @@ int main(void){
     arène.a_x = sizeX;  printf("sizeX : %d\n", sizeX); 
     arène.a_y = sizeY;  printf("sizeY : %d\n", sizeY); 
     arène.nb_walls = nbWalls;
-    arène.matrice_walls = walls;
+    arène.walls = walls;
     arène.snake = snake;
     arène.adv = adv;
 
@@ -166,7 +120,6 @@ int main(void){
     snake.taille_snake = 1;
     adv.taille_snake = 1;
 
-    int coup = 0;
     t_move move_adv;
     int sortie_adv;
     
@@ -205,10 +158,11 @@ int main(void){
                 
                 // ----------------------------Notre coup---------------------------------------------
                 
-                printf("Entrez la valeur de coup : 0 pour Nord, 1 pour Est, 2 pour Sud, 3 pour Ouest\n");
-                scanf("%d", &coup);
-                printf("Vous avez saisi la valeur %d pour coup\n", coup);
-                coup_t_move = (t_move)coup ; // cast
+                //printf("Entrez la valeur de coup : 0 pour Nord, 1 pour Est, 2 pour Sud, 3 pour Ouest\n");
+                //scanf("%d", &coup);
+                //printf("Vous avez saisi la valeur %d pour coup\n", coup);
+                coup_t_move = recherche_rapide_coup(snake, arène) ;
+                printf("La valeur de la direction est : %d\n", coup_t_move);
 
                 resultat_mon_coup = sendMove(coup_t_move); // envoi mon coup
                 printf("mouv envoyé\n");
@@ -217,7 +171,7 @@ int main(void){
 
                 if (sortie == 1){
                     return 0;
-                }
+                }  
 
                 // ---------------------------- Détecter coup adv --------------------------------
 
@@ -249,10 +203,11 @@ int main(void){
 
                 // ----------------------------Notre coup---------------------------------------------
 
-                printf("Entrez la valeur de coup : 0 pour Nord, 1 pour Est, 2 pour Sud, 3 pour Ouest\n");
-                scanf("%d", &coup);
-                printf("Vous avez saisi la valeur %d pour coup\n", coup);
-                coup_t_move = (t_move)coup ; // cast
+                //printf("Entrez la valeur de coup : 0 pour Nord, 1 pour Est, 2 pour Sud, 3 pour Ouest\n");
+                //scanf("%d", &coup);
+                //printf("Vous avez saisi la valeur %d pour coup\n", coup);
+                coup_t_move = recherche_rapide_coup(snake, arène) ;
+                printf("La valeur de la direction est : %d\n", coup_t_move);
 
                 resultat_mon_coup = sendMove(coup_t_move); // envoi mon coup
                 printf("mouv envoyé\n");
@@ -299,20 +254,20 @@ int main(void){
 
         //Mettre à jour la tete du serpent
 
-        if(coup == 0 ){
+        if(coup_t_move == 0 ){
             snake.co_y ++ ;
         }
-        if (coup == 1){
+        if (coup_t_move == 1){
             snake.co_x ++ ;
         }
-        if (coup == 2){
+        if (coup_t_move == 2){
             snake.co_y -- ;
         }
-        if (coup == 3){
+        if (coup_t_move == 3){
             snake.co_x -- ;
         }
 
-        printf("coo x du snake : %d : %d \n", snake.co_x, snake.co_y);
+        printf("coo snake : %d : %d \n", snake.co_x, snake.co_y);
 
         // Afficher le corps du serpent
 
@@ -375,7 +330,7 @@ int main(void){
             adv.co_x -- ;
         }
 
-        printf("coo x du adv : %d : %d \n", adv.co_x, adv.co_y);
+        printf("coo adv : %d : %d \n", adv.co_x, adv.co_y);
 
         // Afficher le corps du serpent
 
@@ -395,6 +350,105 @@ int main(void){
 
     } //fin boucle while
 
+} // fin main
+
+
+// #########################################################################
+// ############################################### FONCTIONS ########################################################################
+// #########################################################################
+
+
+int detecter_coup_adv(t_move* coup_t_adv) {
+    t_return_code coup = getMove(coup_t_adv); // attend move adv
+
+    int sortie = 0;
+    if (coup == WINNING_MOVE) {
+        printf("L'adv gagne !\n");
+        sendComment("Ah");
+        sortie = 1;
+    } else if (coup == LOSING_MOVE) {
+        printf("L'adv perd !\n");
+        sendComment("Pas de ralentir");
+        sortie = 1;
+    } else {
+        sortie = 0;
+    }
+
+    
+    return sortie;
 }
 
+int detecter_mon_coup(t_return_code coup){
 
+    if(coup == WINNING_MOVE){
+        printf("Tu gagnes !\n");
+        sendComment("Yeah !");
+        closeConnection() ;
+        return 1;
+    }
+    
+    else if(coup == LOSING_MOVE){
+        printf( "Tu perd !\n" );
+        sendComment("classique death");
+        closeConnection() ;
+        return 1;
+    }
+    else{
+        return 0;
+    }
+}
+
+int coup_possible(int x, int y, Arena arène){ // coo de l'endroit a verifier
+    if (x < 1 || x > arène.a_x || y < 1 || y > arène.a_y){
+        return 0; // bordures
+    }
+    for (int i = 0 ; i< (arène.snake.taille_snake); i=i+2){
+        if (arène.snake.corp[i] == x && arène.snake.corp[i+1] == y){
+            return 0; // propre snake
+        }
+    }
+    for (int i = 0 ; i< (arène.adv.taille_snake); i=i+2){
+        if (arène.adv.corp[i] == x && arène.adv.corp[i+1] == y){
+            return 0; // snake adv
+        }
+    }
+    return 1;
+}
+
+t_move recherche_rapide_coup(Snake snake, Arena arène){ // coo de la tete du serpent
+    if(coup_possible(snake.co_x + 1,snake.co_y,arène)){
+        if(recherche_simple_mur(snake.co_x,snake.co_y,snake.co_x+1,snake.co_y,arène) == 0){
+            return EAST;
+        }
+    }
+    if(coup_possible(snake.co_x - 1,snake.co_y,arène)){
+        if(recherche_simple_mur(snake.co_x,snake.co_y,snake.co_x-1,snake.co_y,arène) == 0){
+            return WEST;
+        }
+    }
+    if(coup_possible(snake.co_x,snake.co_y + 1,arène)){
+        if(recherche_simple_mur(snake.co_x,snake.co_y,snake.co_x,snake.co_y+1,arène) == 0){
+            return NORTH;
+        }
+    }
+    if(coup_possible(snake.co_x,snake.co_y - 1,arène)){
+        if(recherche_simple_mur(snake.co_x,snake.co_y,snake.co_x,snake.co_y-1,arène) == 0){
+            return SOUTH;
+        }
+    }
+    printf("recherche_ rapide_coup echouée, pas de coo autour possibles \n");
+    return SOUTH;
+}
+
+int recherche_simple_mur(int x1, int y1, int x2, int y2, Arena arène){
+    for(int i = 0; i < arène.nb_walls; i = i+4){ // parcours liste des murs
+        if((x1 == arène.walls[i]) && (y1 == arène.walls[i+1]) && (x2 == arène.walls[i+2]) && (y2 == arène.walls[i+3])){
+            return 1;
+        }
+        if((x2 == arène.walls[i]) && (y2 == arène.walls[i+1]) && (x1 == arène.walls[i+2]) && (y1 == arène.walls[i+3])){
+            return 1;
+        }
+    }
+    return 0;
+    printf("Aucun mur trouvé \n");
+}
