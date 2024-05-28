@@ -62,8 +62,9 @@ int main(void){
     int sizeX ;
     int sizeY ;
     int nbWalls ;
-    waitForSnakeGame("TRAINING RANDOM_PLAYER difficulty=2 timeout=100 ", &gameName, &sizeX, &sizeY, &nbWalls); //attend retour partie
+    waitForSnakeGame("TRAINING RANDOM_PLAYER difficulty=1 timeout=100 ", &gameName, &sizeX, &sizeY, &nbWalls); //attend retour partie
     //void waitForSnakeGame(char* gameType, char* gameName, int* sizeX, int* sizeY, int* nbWalls)
+    printf("Nb walls %d\n", nbWalls);
 
     int walls[2000];
     int start = getSnakeArena(walls) ; // renvoi matrice des murs
@@ -88,25 +89,26 @@ int main(void){
     arène.snake = snake;
     arène.adv = adv;
 
+    /*printf("Liste des murs :\n");
+    for (int i = 0; i < 4 * arène.nb_walls; i += 4) {
+        printf("Mur entre (%d, %d) et (%d, %d)\n",
+               arène.walls[i], arène.walls[i + 1],
+               arène.walls[i + 2], arène.walls[i + 3]);
+    }*/
+
     // -------------------------- Positions serpents ---------------------------
 
     if (start == 0){ // si je commence je suis a gauche
-        snake.co_x = 3;
-        adv.co_x = sizeX - 2;
+        snake.co_x = 2;
+        adv.co_x = sizeX - 3;
     }
     else{
-        snake.co_x = sizeX - 2; // si l'adversaire commence je suis a droite 
-        adv.co_x = 3; 
+        snake.co_x = sizeX - 3; // si l'adversaire commence je suis a droite 
+        adv.co_x = 2; 
     }
+    snake.co_y = sizeY / 2;
+    adv.co_y = sizeY / 2;
 
-    if (sizeY % 2 == 0){ // si impair, le centre de l'arène et la position est +1 
-        snake.co_y = sizeY / 2;
-        adv.co_y = sizeY / 2;
-    }
-    else{
-        snake.co_y = (sizeY + 1) / 2;
-        adv.co_y = (sizeY + 1) / 2;
-    }
 
     printf("coo x du snake : %d\n", snake.co_x);
     printf("coo y du snake : %d\n", snake.co_y);
@@ -162,7 +164,7 @@ int main(void){
                 //scanf("%d", &coup);
                 //printf("Vous avez saisi la valeur %d pour coup\n", coup);
                 coup_t_move = recherche_rapide_coup(snake, arène) ;
-                printf("La valeur de la direction est : %d\n", coup_t_move);
+                printf("le mouv envoyé est : %d\n", coup_t_move);
 
                 resultat_mon_coup = sendMove(coup_t_move); // envoi mon coup
                 printf("mouv envoyé\n");
@@ -207,7 +209,7 @@ int main(void){
                 //scanf("%d", &coup);
                 //printf("Vous avez saisi la valeur %d pour coup\n", coup);
                 coup_t_move = recherche_rapide_coup(snake, arène) ;
-                printf("La valeur de la direction est : %d\n", coup_t_move);
+                printf("Le mouv envoyé est : %d (0 pour Nord, 1 pour Est, 2 pour Sud, 3 pour Ouest)\n", coup_t_move);
 
                 resultat_mon_coup = sendMove(coup_t_move); // envoi mon coup
                 printf("mouv envoyé\n");
@@ -255,13 +257,13 @@ int main(void){
         //Mettre à jour la tete du serpent
 
         if(coup_t_move == 0 ){
-            snake.co_y ++ ;
+            snake.co_y -- ;
         }
         if (coup_t_move == 1){
             snake.co_x ++ ;
         }
         if (coup_t_move == 2){
-            snake.co_y -- ;
+            snake.co_y ++ ;
         }
         if (coup_t_move == 3){
             snake.co_x -- ;
@@ -318,13 +320,13 @@ int main(void){
         
 
         if(move_adv == NORTH ){
-            adv.co_y ++ ;
+            adv.co_y -- ;
         }
         if (move_adv == EAST){
             adv.co_x ++ ;
         }
         if (move_adv == SOUTH){
-            adv.co_y -- ;
+            adv.co_y ++ ;
         }
         if (move_adv == WEST){
             adv.co_x -- ;
@@ -399,19 +401,23 @@ int detecter_mon_coup(t_return_code coup){
 }
 
 int coup_possible(int x, int y, Arena arène){ // coo de l'endroit a verifier
-    if (x < 1 || x > arène.a_x || y < 1 || y > arène.a_y){
+    if (x < 0 || x > (arène.a_x-1) || y < 0 || y > (arène.a_y-1)){
+        printf("bordures en %d %d \n",x,y);
         return 0; // bordures
     }
     for (int i = 0 ; i< (arène.snake.taille_snake); i=i+2){
         if (arène.snake.corp[i] == x && arène.snake.corp[i+1] == y){
+            printf("snake en %d %d \n",x,y);
             return 0; // propre snake
         }
     }
     for (int i = 0 ; i< (arène.adv.taille_snake); i=i+2){
         if (arène.adv.corp[i] == x && arène.adv.corp[i+1] == y){
+            printf("adv en %d %d \n",x,y);
             return 0; // snake adv
         }
     }
+    printf("coup possible en %d %d \n",x,y);
     return 1;
 }
 
@@ -426,13 +432,13 @@ t_move recherche_rapide_coup(Snake snake, Arena arène){ // coo de la tete du se
             return WEST;
         }
     }
-    if(coup_possible(snake.co_x,snake.co_y + 1,arène)){
-        if(recherche_simple_mur(snake.co_x,snake.co_y,snake.co_x,snake.co_y+1,arène) == 0){
+    if(coup_possible(snake.co_x,snake.co_y - 1,arène)){
+        if(recherche_simple_mur(snake.co_x,snake.co_y,snake.co_x,snake.co_y-1,arène) == 0){
             return NORTH;
         }
     }
-    if(coup_possible(snake.co_x,snake.co_y - 1,arène)){
-        if(recherche_simple_mur(snake.co_x,snake.co_y,snake.co_x,snake.co_y-1,arène) == 0){
+    if(coup_possible(snake.co_x,snake.co_y + 1,arène)){
+        if(recherche_simple_mur(snake.co_x,snake.co_y,snake.co_x,snake.co_y+1,arène) == 0){
             return SOUTH;
         }
     }
@@ -441,7 +447,8 @@ t_move recherche_rapide_coup(Snake snake, Arena arène){ // coo de la tete du se
 }
 
 int recherche_simple_mur(int x1, int y1, int x2, int y2, Arena arène){
-    for(int i = 0; i < arène.nb_walls; i = i+4){ // parcours liste des murs
+    printf("Test murs entre %d %d et %d %d \n", x1,y1,x2,y2);
+    for(int i = 0; i < (4*arène.nb_walls); i = i+4){ // parcours liste des murs
         if((x1 == arène.walls[i]) && (y1 == arène.walls[i+1]) && (x2 == arène.walls[i+2]) && (y2 == arène.walls[i+3])){
             return 1;
         }
@@ -449,6 +456,6 @@ int recherche_simple_mur(int x1, int y1, int x2, int y2, Arena arène){
             return 1;
         }
     }
-    return 0;
     printf("Aucun mur trouvé \n");
+    return 0;
 }
