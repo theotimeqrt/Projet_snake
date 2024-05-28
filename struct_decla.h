@@ -1,8 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 
-int detecter_coup_adv();
+int detecter_coup_adv(t_move* coup_t_adv);
 int detecter_mon_coup(t_return_code coup);
+
 
 typedef struct Snake {
     int co_x;
@@ -17,4 +19,5 @@ typedef struct Arena {
     int nb_walls;
     int* matrice_walls;
     Snake snake;
+    Snake adv;
     } Arena;
