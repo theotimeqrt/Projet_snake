@@ -2,11 +2,15 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
+typedef struct coo { // mise à jour suite au CM pour pas utiliser des int x2
+    int x;
+    int y;
+    } coo;
+
 typedef struct Snake {
-    int co_x;
-    int co_y;
+    coo coo_tete; // juste coo de la tête
     int taille_snake;
-    int* corp;
+    coo* corp; // tableau de coordonnées
     } Snake;
 
 typedef struct Arena {
