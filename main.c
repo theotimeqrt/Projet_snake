@@ -1,48 +1,34 @@
-//      main
 
-//prof
+// ######################################################## Programme bot snake 1v1 de Théotime QUIRET ################################################################
+
+/*
+
+Points forts :
+- Intelligence du snake réglable (parametre générique N_force)
+- programme découper en plusieurs fonctions (debug et amelioration facile)
+- fonctions optimisés (crans d'arrêts efficaces)
+- snake compétitif 
+
+Points faibles :
+- Gestion des murs de façon basique
+
+*/
+
 #include "snakeAPI.h"
 #include "clientAPI.h"
-
-//basiques
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
-
-//mes autres
 #include "struct_decla.h"
 
-//#define RESET   "\033[0m" // utilisation de IA Mistral ici pour trouver les codes couleurs
-//#define YELLOW  "\033[33m"
-//#define RED     "\033[31m"
-
-/*      Lancer tunnel : 
-ssh -N -p 22 21111206@pc5056.polytech.upmc.fr -L 1234:pc5039:1234 -L 8080:pc5039:8080
-puis mettre mdp sorbonne
-faire autre terminal
-visible sur internet en parrallele
-*/
-
-/*
-Le serveur de jeu tourne sur la machine pc5039 (port 1234), qui est accessible depuis les machines de l'école. 
-Si vous voulez utiliser votre propre machine, il faudra mettre en place un tunnel SSH en passant par 
-la passerelle de l'école pc5056.polytech.upmc.fr (cela se fait avec la commande 
-ssh -N -p 22 <login>@pc5056.polytech.upmc.fr -L 1234:pc5039:1234& 
-où <login> est votre login de Sorbonne Université; le mot de passe associé doit vous être demandé au moment de créer le tunnel)
-Donc utiliser 
-ssh -N -p 22 21111206@pc5056.polytech.upmc.fr -L 1234:pc5039:1234 -L 8080:pc5039:8080
-ps | grep ssh 
-car faudrait kill process, marche pas encore
-
-j'ai obtenu 18304
-
-Les 6 derniers caracteres sont la seed de l'arène
 
 
-*/
+// ==========================================Paramêtre de la force de l'esprit du snake======================================================================
 
+#define N_force 10 // nombre de coups à anticiper
+//11 lent mais jouable
 
-
+// =================================================(+ grand + fort - rapide)================================================================================
 
 
 // #########################################################################
@@ -54,7 +40,7 @@ int main(void){
     printf("debut main\n") ;
 
     //void connectToServer(char* serverName, int port, char* name) //nom serveur : localhost, port : 1234
-    connectToServer("localhost", 1234, "GIGA_T") ;
+    connectToServer("localhost", 1234, "Terra_T") ;
     printf("connecté serveur\n") ;
     // -----------------------Récuperation des informations------------------------------------
 
@@ -63,9 +49,9 @@ int main(void){
     int sizeY ;
     int nbWalls ;
 
-    waitForSnakeGame("TRAINING SUPER_PLAYER difficulty=2 timeout=10", &gameName, &sizeX, &sizeY, &nbWalls); //attend retour partie
+    waitForSnakeGame(" ", &gameName, &sizeX, &sizeY, &nbWalls); //attend retour partie
     //void waitForSnakeGame(char* gameType, char* gameName, int* sizeX, int* sizeY, int* nbWalls)
-    // TRAINING SUPER_PLAYER difficulty=3 timeout=10
+    // TRAINING SUPER_PLAYER difficulty=2 timeout=5
     // TOURNAMENT Tournoi
     // rien pour 1v1
     printf("Nb walls %d\n", nbWalls);
@@ -479,14 +465,7 @@ t_move recherche_rapide_coup(Snake snake, Arena arène){ // coo de la tete du se
     return SOUTH;
 }
 
-
 t_move recherche_super_coup(Snake snake, Arena arène){
-
-    // ====================Paramêtre de la force de l'esprit du snake=======================
-
-    int N = 6; // nombre de coups à anticiper
-
-    // ============================(+ grand + fort - rapide)================================
 
     int coups_east = 0;
     int coups_west = 0;
@@ -496,20 +475,28 @@ t_move recherche_super_coup(Snake snake, Arena arène){
 
     if((coup_possible(snake.coo_tete.x + 1,snake.coo_tete.y,arène)) && (recherche_simple_mur(snake.coo_tete.x,snake.coo_tete.y,snake.coo_tete.x+1,snake.coo_tete.y,arène) == 0)){
         printf(" appel new fonc \n");
-        coups_east = coup_autour_case(snake.coo_tete.x + 1, snake.coo_tete.y, arène, N);
+        coo* tab_xy = malloc(200 * sizeof(coo));
+        coups_east = coup_autour_case(snake.coo_tete.x + 1, snake.coo_tete.y, arène, N_force, tab_xy,0); // N générique du tout début pour la force
+        free (tab_xy);
         printf("Il y a %d coups possibles à l'est \n",coups_east);
     }
     printf(" avant le test \n");
     if((coup_possible(snake.coo_tete.x - 1,snake.coo_tete.y,arène))&&(recherche_simple_mur(snake.coo_tete.x,snake.coo_tete.y,snake.coo_tete.x-1,snake.coo_tete.y,arène) == 0) ){
-        coups_west = coup_autour_case(snake.coo_tete.x - 1, snake.coo_tete.y, arène, N);
+        coo* tab_xy = malloc(200 * sizeof(coo));
+        coups_west = coup_autour_case(snake.coo_tete.x - 1, snake.coo_tete.y, arène, N_force,tab_xy,0 );
+        free (tab_xy);
         printf("Il y a %d coups possibles à l'ouest \n",coups_west);
     }
     if((coup_possible(snake.coo_tete.x,snake.coo_tete.y - 1,arène))&&(recherche_simple_mur(snake.coo_tete.x,snake.coo_tete.y,snake.coo_tete.x,snake.coo_tete.y-1,arène) == 0)){
-        coups_north = coup_autour_case(snake.coo_tete.x, snake.coo_tete.y - 1, arène, N);
+        coo* tab_xy = malloc(200 * sizeof(coo));
+        coups_north = coup_autour_case(snake.coo_tete.x, snake.coo_tete.y - 1, arène, N_force,tab_xy,0);
+        free (tab_xy);
         printf("Il y a %d coups possibles au nord \n",coups_north);
     }
     if((coup_possible(snake.coo_tete.x,snake.coo_tete.y + 1,arène))&&(recherche_simple_mur(snake.coo_tete.x,snake.coo_tete.y,snake.coo_tete.x,snake.coo_tete.y+1,arène) == 0)){
-        coups_south = coup_autour_case(snake.coo_tete.x, snake.coo_tete.y + 1, arène, N);
+        coo* tab_xy = malloc(200 * sizeof(coo));
+        coups_south = coup_autour_case(snake.coo_tete.x, snake.coo_tete.y + 1, arène, N_force,tab_xy,0 );
+        free (tab_xy);
         printf("Il y a %d coups possibles au sud \n",coups_south);
     }
 
@@ -537,28 +524,40 @@ t_move recherche_super_coup(Snake snake, Arena arène){
 }
 
 
-int coup_autour_case(int x_case, int y_case, Arena arena, int N){
+int coup_autour_case(int x_case, int y_case, Arena arena, int N, coo* tab_xy, int i){ // Le N choisis à combien de coups je regarde à l'avance
     int x = x_case;
     int y = y_case;
     int coups = 0;
 
+    for (int j = 0; j < i; j++) {
+        if (tab_xy[j].x == x && tab_xy[j].y == y) {
+            return coups;
+        }
+    }
+
+    tab_xy[i].x = x;
+    tab_xy[i].y = y;
+    i++;
+
+
+
     printf(" N = %d\n", N);
 
-    if (N == 0) { // Le N choisis à combien de coups je regarde à l'avance
+    if (N == 0) { // cran d'arret, oui j'abuse des parentheses
         return coups;
     }
-
+    
     if(coup_possible(x + 1, y, arena) && recherche_simple_mur(x, y, x+1, y, arena) == 0){
-        coups = coups + 1 + coup_autour_case(x+1, y, arena, N-1);
+        coups = coups + 1 + coup_autour_case(x+1, y, arena, N-1,tab_xy, i );
     }
     if(coup_possible(x - 1, y, arena) && recherche_simple_mur(x, y, x-1, y, arena) == 0){
-        coups = coups + 1 + coup_autour_case(x-1, y, arena, N-1);
+        coups = coups + 1 + coup_autour_case(x-1, y, arena, N-1,tab_xy, i);
     }
     if(coup_possible(x, y - 1, arena) && recherche_simple_mur(x, y, x, y-1, arena) == 0){
-        coups = coups + 1 + coup_autour_case(x, y-1, arena, N-1);
+        coups = coups + 1 + coup_autour_case(x, y-1, arena, N-1,tab_xy ,i);
     }
     if(coup_possible(x, y + 1, arena) && recherche_simple_mur(x, y, x, y+1, arena) == 0){
-        coups = coups + 1 + coup_autour_case(x, y+1, arena, N-1);
+        coups = coups + 1 + coup_autour_case(x, y+1, arena, N-1, tab_xy, i );
     }
 
     printf("Il y a %d coups possibles en %d;%d \n", coups, x, y);

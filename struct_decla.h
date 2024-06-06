@@ -2,6 +2,11 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
+/*      Lancer tunnel : 
+ssh -N -p 22 21111206@pc5056.polytech.upmc.fr -L 1234:pc5039:1234 -L 8080:pc5039:8080
+puis mdp sorbonne
+*/
+
 typedef struct coo { // mise à jour suite au CM pour pas utiliser des int x2
     int x;
     int y;
@@ -33,6 +38,6 @@ int coup_possible(int x, int y, Arena arène);
 t_move recherche_super_coup(Snake snake, Arena arène);
 
 
-int coup_autour_case(int x, int y, Arena arène, int N);
+int coup_autour_case(int x, int y, Arena arène, int N, coo* tab_xy, int i);
 
 int max(int a, int b, int c, int d);
