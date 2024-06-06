@@ -54,7 +54,7 @@ int main(void){
     printf("debut main\n") ;
 
     //void connectToServer(char* serverName, int port, char* name) //nom serveur : localhost, port : 1234
-    connectToServer("localhost", 1234, "Big_T") ;
+    connectToServer("localhost", 1234, "GIGA_T") ;
     printf("connecté serveur\n") ;
     // -----------------------Récuperation des informations------------------------------------
 
@@ -62,12 +62,17 @@ int main(void){
     int sizeX ;
     int sizeY ;
     int nbWalls ;
-    waitForSnakeGame("TRAINING SUPER_PLAYER difficulty=1 timeout=100 ", &gameName, &sizeX, &sizeY, &nbWalls); //attend retour partie
+
+    waitForSnakeGame("TRAINING SUPER_PLAYER difficulty=2 timeout=10", &gameName, &sizeX, &sizeY, &nbWalls); //attend retour partie
     //void waitForSnakeGame(char* gameType, char* gameName, int* sizeX, int* sizeY, int* nbWalls)
+    // TRAINING SUPER_PLAYER difficulty=3 timeout=10
+    // TOURNAMENT Tournoi
+    // rien pour 1v1
     printf("Nb walls %d\n", nbWalls);
 
     int walls[2000];
     int start = getSnakeArena(walls) ; // renvoi matrice des murs
+
     if(start == 0) {
         printf("tu commences\n");
     }
@@ -124,6 +129,8 @@ int main(void){
 
     t_move move_adv;
     int sortie_adv;
+
+    sendComment("Pas de ralentir");
     
 
     while(1){
@@ -163,8 +170,8 @@ int main(void){
                 //printf("Entrez la valeur de coup : 0 pour Nord, 1 pour Est, 2 pour Sud, 3 pour Ouest\n");
                 //scanf("%d", &coup);
                 //printf("Vous avez saisi la valeur %d pour coup\n", coup);
-                coup_t_move = recherche_rapide_coup(snake, arène) ;
-                printf("le mouv envoyé est : %d\n", coup_t_move);
+                coup_t_move = recherche_super_coup(snake, arène);
+                printf("Le mouv envoyé est : %d (0 pour Nord, 1 pour Est, 2 pour Sud, 3 pour Ouest)\n", coup_t_move);
 
                 resultat_mon_coup = sendMove(coup_t_move); // envoi mon coup
                 printf("mouv envoyé\n");
@@ -208,7 +215,7 @@ int main(void){
                 //printf("Entrez la valeur de coup : 0 pour Nord, 1 pour Est, 2 pour Sud, 3 pour Ouest\n");
                 //scanf("%d", &coup);
                 //printf("Vous avez saisi la valeur %d pour coup\n", coup);
-                coup_t_move = recherche_rapide_coup(snake, arène) ;
+                coup_t_move = recherche_super_coup(snake, arène) ;
                 printf("Le mouv envoyé est : %d (0 pour Nord, 1 pour Est, 2 pour Sud, 3 pour Ouest)\n", coup_t_move);
 
                 resultat_mon_coup = sendMove(coup_t_move); // envoi mon coup
@@ -360,7 +367,7 @@ int main(void){
 // #########################################################################
 
 
-int detecter_coup_adv(t_move* coup_t_adv) {
+int detecter_coup_adv(t_move* coup_t_adv) { // ok
     t_return_code coup = getMove(coup_t_adv); // attend move adv
 
     int sortie = 0;
@@ -370,7 +377,7 @@ int detecter_coup_adv(t_move* coup_t_adv) {
         sortie = 1;
     } else if (coup == LOSING_MOVE) {
         printf("L'adv perd !\n");
-        sendComment("Pas de ralentir");
+        sendComment("Finito");
         sortie = 1;
     } else {
         sortie = 0;
@@ -380,7 +387,7 @@ int detecter_coup_adv(t_move* coup_t_adv) {
     return sortie;
 }
 
-int detecter_mon_coup(t_return_code coup){
+int detecter_mon_coup(t_return_code coup){ // ok
 
     if(coup == WINNING_MOVE){
         printf("Tu gagnes !\n");
@@ -401,66 +408,35 @@ int detecter_mon_coup(t_return_code coup){
 }
 
 
-int coup_possible(int x, int y, Arena arène){ // coo de l'endroit a verifier
+int coup_possible(int x, int y, Arena arène){ // coo de l'endroit a verifier -- ok
     if (x < 0 || x > (arène.a_x-1) || y < 0 || y > (arène.a_y-1)){
-        printf("bordures en %d %d \n",x,y);
+        //printf("bordures en %d %d \n",x,y);
         return 0; // bordures
     }
     for (int i = 0 ; i< (arène.snake.taille_snake); i++){
         if (arène.snake.corp[i].x == x && arène.snake.corp[i].y == y){
-            printf("corp snake en %d %d \n",x,y);
+            //printf("corp snake en %d %d \n",x,y);
             return 0; // mon snake
         }
-        printf("pas corp snake en %d %d \n",x,y);
+        //printf("pas corp snake en %d %d \n",x,y);
     }
     for (int i = 0 ; i< (arène.adv.taille_snake); i++){
         if (arène.adv.corp[i].x == x && arène.adv.corp[i].y == y){
-            printf("corp adv en %d %d \n",x,y);
+            //printf("corp adv en %d %d \n",x,y);
             return 0; // snake adv
         }
     }
     if ( (arène.adv.coo_tete.x == x && arène.adv.coo_tete.y == y)){
-        printf("tete snake adv en %d %d \n",x,y);
+        //printf("tete snake adv en %d %d \n",x,y);
         return 0;
     }
 
-    printf("coup possible en %d %d \n",x,y);
+    //printf("coup possible en %d %d \n",x,y);
     return 1;
 }
 
-
-
-t_move recherche_rapide_coup(Snake snake, Arena arène){ // coo de la tete du serpent
-    if(coup_possible(snake.coo_tete.x + 1,snake.coo_tete.y,arène)){
-        printf("coup possible a l'est, voir murs\n");
-        if(recherche_simple_mur(snake.coo_tete.x,snake.coo_tete.y,snake.coo_tete.x+1,snake.coo_tete.y,arène) == 0){
-            return EAST;
-        }
-    }
-    if(coup_possible(snake.coo_tete.x - 1,snake.coo_tete.y,arène)){
-        printf("coup possible a l'ouest, voir murs\n");
-        if(recherche_simple_mur(snake.coo_tete.x,snake.coo_tete.y,snake.coo_tete.x-1,snake.coo_tete.y,arène) == 0){
-            return WEST;
-        }
-    }
-    if(coup_possible(snake.coo_tete.x,snake.coo_tete.y - 1,arène)){
-        printf("coup possible au nord, voir murs\n");
-        if(recherche_simple_mur(snake.coo_tete.x,snake.coo_tete.y,snake.coo_tete.x,snake.coo_tete.y-1,arène) == 0){
-            return NORTH;
-        }
-    }
-    if(coup_possible(snake.coo_tete.x,snake.coo_tete.y + 1,arène)){
-        printf("coup possible au sud, voir murs\n");
-        if(recherche_simple_mur(snake.coo_tete.x,snake.coo_tete.y,snake.coo_tete.x,snake.coo_tete.y+1,arène) == 0){
-            return SOUTH;
-        }
-    }
-    printf("recherche_ rapide_coup echouée, pas de coo autour possibles \n");
-    return SOUTH;
-}
-
-int recherche_simple_mur(int x1, int y1, int x2, int y2, Arena arène){
-    printf("Test murs entre %d %d et %d %d \n", x1,y1,x2,y2);
+int recherche_simple_mur(int x1, int y1, int x2, int y2, Arena arène){ // ok
+    //printf("Test murs entre %d %d et %d %d \n", x1,y1,x2,y2);
     for(int i = 0; i < (4*arène.nb_walls); i = i+4){ // parcours liste des murs
         if((x1 == arène.walls[i]) && (y1 == arène.walls[i+1]) && (x2 == arène.walls[i+2]) && (y2 == arène.walls[i+3])){
             return 1;
@@ -469,9 +445,135 @@ int recherche_simple_mur(int x1, int y1, int x2, int y2, Arena arène){
             return 1;
         }
     }
-    printf("Aucun mur trouvé \n");
+    //printf("Aucun mur trouvé \n");
     return 0;
 }
 
 
-// il ne se voit pas, se mange la queue a faire
+t_move recherche_rapide_coup(Snake snake, Arena arène){ // coo de la tete du serpent --ok
+    if(coup_possible(snake.coo_tete.x + 1,snake.coo_tete.y,arène)){
+        //printf("coup possible a l'est, voir murs\n");
+        if(recherche_simple_mur(snake.coo_tete.x,snake.coo_tete.y,snake.coo_tete.x+1,snake.coo_tete.y,arène) == 0){
+            return EAST;
+        }
+    }
+    if(coup_possible(snake.coo_tete.x - 1,snake.coo_tete.y,arène)){
+        //printf("coup possible a l'ouest, voir murs\n");
+        if(recherche_simple_mur(snake.coo_tete.x,snake.coo_tete.y,snake.coo_tete.x-1,snake.coo_tete.y,arène) == 0){
+            return WEST;
+        }
+    }
+    if(coup_possible(snake.coo_tete.x,snake.coo_tete.y - 1,arène)){
+        //printf("coup possible au nord, voir murs\n");
+        if(recherche_simple_mur(snake.coo_tete.x,snake.coo_tete.y,snake.coo_tete.x,snake.coo_tete.y-1,arène) == 0){
+            return NORTH;
+        }
+    }
+    if(coup_possible(snake.coo_tete.x,snake.coo_tete.y + 1,arène)){
+        //printf("coup possible au sud, voir murs\n");
+        if(recherche_simple_mur(snake.coo_tete.x,snake.coo_tete.y,snake.coo_tete.x,snake.coo_tete.y+1,arène) == 0){
+            return SOUTH;
+        }
+    }
+    printf("recherche_ rapide_coup echouée, pas de coo autour possibles \n");
+    return SOUTH;
+}
+
+
+t_move recherche_super_coup(Snake snake, Arena arène){
+
+    // ====================Paramêtre de la force de l'esprit du snake=======================
+
+    int N = 6; // nombre de coups à anticiper
+
+    // ============================(+ grand + fort - rapide)================================
+
+    int coups_east = 0;
+    int coups_west = 0;
+    int coups_north = 0;
+    int coups_south = 0;
+    printf(" avant le test \n");
+
+    if((coup_possible(snake.coo_tete.x + 1,snake.coo_tete.y,arène)) && (recherche_simple_mur(snake.coo_tete.x,snake.coo_tete.y,snake.coo_tete.x+1,snake.coo_tete.y,arène) == 0)){
+        printf(" appel new fonc \n");
+        coups_east = coup_autour_case(snake.coo_tete.x + 1, snake.coo_tete.y, arène, N);
+        printf("Il y a %d coups possibles à l'est \n",coups_east);
+    }
+    printf(" avant le test \n");
+    if((coup_possible(snake.coo_tete.x - 1,snake.coo_tete.y,arène))&&(recherche_simple_mur(snake.coo_tete.x,snake.coo_tete.y,snake.coo_tete.x-1,snake.coo_tete.y,arène) == 0) ){
+        coups_west = coup_autour_case(snake.coo_tete.x - 1, snake.coo_tete.y, arène, N);
+        printf("Il y a %d coups possibles à l'ouest \n",coups_west);
+    }
+    if((coup_possible(snake.coo_tete.x,snake.coo_tete.y - 1,arène))&&(recherche_simple_mur(snake.coo_tete.x,snake.coo_tete.y,snake.coo_tete.x,snake.coo_tete.y-1,arène) == 0)){
+        coups_north = coup_autour_case(snake.coo_tete.x, snake.coo_tete.y - 1, arène, N);
+        printf("Il y a %d coups possibles au nord \n",coups_north);
+    }
+    if((coup_possible(snake.coo_tete.x,snake.coo_tete.y + 1,arène))&&(recherche_simple_mur(snake.coo_tete.x,snake.coo_tete.y,snake.coo_tete.x,snake.coo_tete.y+1,arène) == 0)){
+        coups_south = coup_autour_case(snake.coo_tete.x, snake.coo_tete.y + 1, arène, N);
+        printf("Il y a %d coups possibles au sud \n",coups_south);
+    }
+
+    int max_coups = max(coups_east, coups_west, coups_north, coups_south);
+
+    if (max_coups == coups_east){
+        printf("coups l'est est = max \n");
+        return EAST;
+    }
+    if (max_coups == coups_west){
+        printf("coups l'ouest est = max \n");
+        return WEST;
+    }
+    if (max_coups == coups_north){
+        printf("coups le nord est = max \n");
+        return NORTH;
+    }
+    if (max_coups == coups_south){
+        printf("coups le sud est = max \n");
+        return SOUTH;
+    }
+
+    printf("recherche_ super_coup echouée, pas de coo autour possibles, envoi south ! \n");
+    return SOUTH;
+}
+
+
+int coup_autour_case(int x_case, int y_case, Arena arena, int N){
+    int x = x_case;
+    int y = y_case;
+    int coups = 0;
+
+    printf(" N = %d\n", N);
+
+    if (N == 0) { // Le N choisis à combien de coups je regarde à l'avance
+        return coups;
+    }
+
+    if(coup_possible(x + 1, y, arena) && recherche_simple_mur(x, y, x+1, y, arena) == 0){
+        coups = coups + 1 + coup_autour_case(x+1, y, arena, N-1);
+    }
+    if(coup_possible(x - 1, y, arena) && recherche_simple_mur(x, y, x-1, y, arena) == 0){
+        coups = coups + 1 + coup_autour_case(x-1, y, arena, N-1);
+    }
+    if(coup_possible(x, y - 1, arena) && recherche_simple_mur(x, y, x, y-1, arena) == 0){
+        coups = coups + 1 + coup_autour_case(x, y-1, arena, N-1);
+    }
+    if(coup_possible(x, y + 1, arena) && recherche_simple_mur(x, y, x, y+1, arena) == 0){
+        coups = coups + 1 + coup_autour_case(x, y+1, arena, N-1);
+    }
+
+    printf("Il y a %d coups possibles en %d;%d \n", coups, x, y);
+    return coups;
+}
+
+
+
+int max(int a, int b, int c, int d) { // petit max qui fait de mal à personne
+    int max = a;
+    if (b > max)
+        max = b;
+    if (c > max)
+        max = c;
+    if (d > max)
+        max = d;
+    return max;
+}
