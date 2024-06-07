@@ -26,7 +26,9 @@ Points faibles :
 // ==========================================Paramêtre de la force de l'esprit du snake======================================================================
 
 #define N_force 12 // nombre de coups à anticiper
-//12 conseillé
+//10 marche très bien
+//12 conseillé contre Super_player
+//13 max testé, dirait qu'il s'embrouille aussi haut dans certain cas
 
 // =================================================(+ grand + fort - rapide)================================================================================
 
@@ -49,7 +51,7 @@ int main(void){
     int sizeY ;
     int nbWalls ;
 
-    waitForSnakeGame("TRAINING SUPER_PLAYER difficulty=2 timeout=5", &gameName, &sizeX, &sizeY, &nbWalls); //attend retour partie
+    waitForSnakeGame("TRAINING SUPER_PLAYER difficulty=0 timeout=5", &gameName, &sizeX, &sizeY, &nbWalls); //attend retour partie
     //void waitForSnakeGame(char* gameType, char* gameName, int* sizeX, int* sizeY, int* nbWalls)
     // TRAINING SUPER_PLAYER difficulty=2 timeout=5
     // TOURNAMENT Tournoi
@@ -119,7 +121,6 @@ int main(void){
 
     sendComment("Tu oses défier le Master T ?");
     printf("Puissance intelligente paramêtrée à : %d \n", N_force);
-    
 
     while(1){
 
