@@ -3,7 +3,7 @@
 #include <stdbool.h>
 
 /*      Lancer tunnel : 
-ssh -N -p 22 21111206@pc5056.polytech.upmc.fr -L 1234:pc5039:1234 -L 8080:pc5039:8080
+ssh -N -p 22 21111206@pc5056.polytech.upmc.fr -L 3456:pc5039:3456 -L 8080:pc5039:8080
 puis mdp sorbonne
 */
 
